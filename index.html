@@ -19,220 +19,98 @@
             justify-content: center;
             background: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            overflow: hidden;
         }
 
-        .container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        canvas {
+            display: block;
             cursor: pointer;
-            perspective: 1000px;
-        }
-
-        svg {
-            filter: drop-shadow(0 20px 50px rgba(255, 102, 0, 0.2)) drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1));
-            user-select: none;
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotateZ(0deg) rotateX(25deg) rotateY(0deg);
-            }
-            to {
-                transform: rotateZ(360deg) rotateX(25deg) rotateY(360deg);
-            }
-        }
-
-        .form {
-            animation: spin 24s linear infinite;
-            transform-origin: center;
-            transform-style: preserve-3d;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="container">
-        <svg id="form" class="form" viewBox="0 0 200 200" width="320" height="320" xmlns="http://www.w3.org/2000/svg">
-            <!-- Sphere (initial) -->
-            <defs>
-                <radialGradient id="gradient" cx="35%" cy="35%">
-                    <stop offset="0%" style="stop-color:#ff8c42;stop-opacity:1" />
-                    <stop offset="60%" style="stop-color:#e67e22;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#cc5500;stop-opacity:1" />
-                </radialGradient>
-                <filter id="glow">
-                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                    <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                </filter>
-            </defs>
-            <circle class="shape" cx="100" cy="100" r="95" fill="url(#gradient)" filter="url(#glow)" />
-            <ellipse cx="100" cy="105" rx="90" ry="15" fill="#000000" opacity="0.08"/>
-        </svg>
-    </div>
+    <canvas id="canvas"></canvas>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        const forms = [
+        // Scene setup
+        const canvas = document.getElementById('canvas');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 3;
+
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        // Material
+        const material = new THREE.MeshPhongMaterial({
+            color: 0xff6600,
+            shininess: 100,
+            wireframe: false
+        });
+
+        let currentShape = 0;
+        let mesh = null;
+
+        const shapes = [
             // Sphere
-            {
-                svg: `
-                    <circle class="shape" cx="100" cy="100" r="95" fill="url(#gradient)" filter="url(#glow)" />
-                    <ellipse cx="100" cy="105" rx="90" ry="15" fill="#000000" opacity="0.08"/>
-                `
-            },
-            // Cube - strong 3D with proper faces
-            {
-                svg: `
-                    <g class="shape">
-                        <!-- Back face (darkest) -->
-                        <polygon points="45,70 145,70 145,150 45,150" fill="#663300" opacity="0.6"/>
-                        <!-- Front face (brightest) -->
-                        <polygon points="45,50 145,50 145,130 45,130" fill="#ff9955" filter="url(#glow)"/>
-                        <!-- Top face -->
-                        <polygon points="45,50 85,20 185,20 145,50" fill="#ffb380"/>
-                        <!-- Right face (medium) -->
-                        <polygon points="145,50 185,20 185,100 145,130" fill="#cc7722"/>
-                        <!-- Left face (dark) -->
-                        <polygon points="45,50 45,130 5,100 5,20 85,20" fill="#994411" opacity="0.8"/>
-                        <!-- Subtle edge highlights -->
-                        <line x1="45" y1="50" x2="145" y2="50" stroke="#ffcc99" stroke-width="1" opacity="0.4"/>
-                        <line x1="145" y1="50" x2="185" y2="20" stroke="#ffcc99" stroke-width="1" opacity="0.3"/>
-                    </g>
-                `
-            },
-            // Tetrahedron - 3D pyramid
-            {
-                svg: `
-                    <g class="shape">
-                        <!-- Back bottom edge (darkest) -->
-                        <polygon points="50,150 150,150 100,140" fill="#553300" opacity="0.7"/>
-                        <!-- Back left face (dark) -->
-                        <polygon points="100,35 50,150 85,120" fill="#884411"/>
-                        <!-- Back right face (dark) -->
-                        <polygon points="100,35 150,150 115,120" fill="#772200"/>
-                        <!-- Front left face (bright) -->
-                        <polygon points="100,35 50,150 100,100" fill="#ffb380" filter="url(#glow)"/>
-                        <!-- Front right face (medium-bright) -->
-                        <polygon points="100,35 150,150 100,100" fill="#ff9955" filter="url(#glow)"/>
-                        <!-- Bottom face (medium) -->
-                        <polygon points="50,150 150,150 100,100" fill="#e67e22"/>
-                        <!-- Highlight edge -->
-                        <line x1="100" y1="35" x2="100" y2="100" stroke="#ffcc99" stroke-width="0.5" opacity="0.5"/>
-                    </g>
-                `
-            },
-            // Octahedron - strong 3D with depth
-            {
-                svg: `
-                    <g class="shape">
-                        <!-- Bottom back pyramid (darker) -->
-                        <polygon points="65,90 135,90 100,150" fill="#663300" opacity="0.65"/>
-                        <!-- Top front triangle (brightest) -->
-                        <polygon points="100,30 65,70 135,70" fill="#ffb380" filter="url(#glow)"/>
-                        <!-- Left face (medium) -->
-                        <polygon points="65,70 65,90 100,150 100,110" fill="#ff9955"/>
-                        <!-- Right face (medium) -->
-                        <polygon points="135,70 135,90 100,150 100,110" fill="#e67e22"/>
-                        <!-- Front left (bright) -->
-                        <polygon points="100,30 65,70 100,110" fill="#ffcc99" filter="url(#glow)"/>
-                        <!-- Front right (bright) -->
-                        <polygon points="100,30 135,70 100,110" fill="#ffb380" filter="url(#glow)"/>
-                        <!-- Back left (dark) -->
-                        <polygon points="65,70 65,90 100,110" fill="#773300"/>
-                        <!-- Back right (dark) -->
-                        <polygon points="135,70 135,90 100,110" fill="#553300"/>
-                        <!-- Vertical highlight -->
-                        <line x1="100" y1="30" x2="100" y2="110" stroke="#ffdd99" stroke-width="0.7" opacity="0.6"/>
-                    </g>
-                `
-            },
-            // Icosahedron - complex 3D
-            {
-                svg: `
-                    <g class="shape">
-                        <!-- Top cap -->
-                        <polygon points="100,25 70,50 130,50" fill="#ffcc99" filter="url(#glow)"/>
-                        <!-- Upper left front -->
-                        <polygon points="70,50 45,75 70,100 100,85" fill="#ffb380" filter="url(#glow)"/>
-                        <!-- Upper right front -->
-                        <polygon points="130,50 155,75 130,100 100,85" fill="#ffb380" filter="url(#glow)"/>
-                        <!-- Middle left -->
-                        <polygon points="70,100 45,75 60,120 80,110" fill="#ff9955"/>
-                        <!-- Middle right -->
-                        <polygon points="130,100 155,75 140,120 120,110" fill="#ff9955"/>
-                        <!-- Lower left back -->
-                        <polygon points="45,75 45,120 70,100" fill="#cc7722"/>
-                        <!-- Lower right back -->
-                        <polygon points="155,75 155,120 130,100" fill="#cc7722"/>
-                        <!-- Bottom left front -->
-                        <polygon points="60,120 80,110 75,145" fill="#e67e22"/>
-                        <!-- Bottom right front -->
-                        <polygon points="140,120 120,110 125,145" fill="#e67e22"/>
-                        <!-- Bottom back -->
-                        <polygon points="60,120 140,120 100,155" fill="#cc5500"/>
-                        <!-- Dark bottom corners -->
-                        <polygon points="45,120 60,120 75,145" fill="#773300" opacity="0.75"/>
-                        <polygon points="155,120 140,120 125,145" fill="#553300" opacity="0.75"/>
-                    </g>
-                `
-            },
-            // Dodecahedron - 3D faceted
-            {
-                svg: `
-                    <g class="shape">
-                        <!-- Top front pentagon -->
-                        <polygon points="100,35 75,55 80,85 120,85 125,55" fill="#ffb380" filter="url(#glow)"/>
-                        <!-- Upper left -->
-                        <polygon points="75,55 50,70 55,105 80,85" fill="#ffcc99"/>
-                        <!-- Upper right -->
-                        <polygon points="125,55 150,70 145,105 120,85" fill="#ff9955"/>
-                        <!-- Left side -->
-                        <polygon points="50,70 40,105 65,125 55,105" fill="#cc7722"/>
-                        <!-- Right side -->
-                        <polygon points="150,70 160,105 135,125 145,105" fill="#e67e22"/>
-                        <!-- Middle front left -->
-                        <polygon points="55,105 65,125 85,120 80,85" fill="#ff9955"/>
-                        <!-- Middle front right -->
-                        <polygon points="145,105 135,125 115,120 120,85" fill="#e67e22"/>
-                        <!-- Bottom left front -->
-                        <polygon points="65,125 80,145 85,120" fill="#e67e22"/>
-                        <!-- Bottom right front -->
-                        <polygon points="135,125 120,145 115,120" fill="#cc5500"/>
-                        <!-- Bottom back left -->
-                        <polygon points="40,105 55,125 65,125" fill="#773300" opacity="0.7"/>
-                        <!-- Bottom back right -->
-                        <polygon points="160,105 145,125 135,125" fill="#553300" opacity="0.7"/>
-                        <!-- Bottom center -->
-                        <polygon points="80,145 120,145 100,160" fill="#994411"/>
-                    </g>
-                `
-            }
+            () => new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), material),
+            // Cube
+            () => new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), material),
+            // Tetrahedron
+            () => new THREE.Mesh(new THREE.TetrahedronGeometry(1, 0), material),
+            // Octahedron
+            () => new THREE.Mesh(new THREE.OctahedronGeometry(1, 0), material),
+            // Icosahedron
+            () => new THREE.Mesh(new THREE.IcosahedronGeometry(1, 0), material),
+            // Dodecahedron
+            () => new THREE.Mesh(new THREE.DodecahedronGeometry(1, 0), material)
         ];
 
-        let currentForm = 0;
-        const formSvg = document.getElementById('form');
-        const container = document.getElementById('container');
+        // Create initial mesh
+        mesh = shapes[currentShape]();
+        scene.add(mesh);
 
-        container.addEventListener('click', () => {
-            currentForm = (currentForm + 1) % forms.length;
-            const defs = `<defs>
-                <radialGradient id="gradient" cx="35%" cy="35%">
-                    <stop offset="0%" style="stop-color:#ff8c42;stop-opacity:1" />
-                    <stop offset="60%" style="stop-color:#e67e22;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#cc5500;stop-opacity:1" />
-                </radialGradient>
-                <filter id="glow">
-                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                    <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                </filter>
-            </defs>`;
-            formSvg.innerHTML = defs + forms[currentForm].svg;
+        // Mouse interaction
+        canvas.addEventListener('click', () => {
+            scene.remove(mesh);
+            currentShape = (currentShape + 1) % shapes.length;
+            mesh = shapes[currentShape]();
+            scene.add(mesh);
         });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (mesh) {
+                mesh.rotation.x += 0.005;
+                mesh.rotation.y += 0.008;
+                mesh.rotation.z += 0.003;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
     </script>
 </body>
 </html>
