@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memories of the Collapsed Machine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        svg {
+            filter: drop-shadow(0 0 20px rgba(100, 200, 255, 0.3));
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotateZ(0deg) rotateX(20deg);
+            }
+            to {
+                transform: rotateZ(360deg) rotateX(20deg);
+            }
+        }
+
+        .earth {
+            animation: spin 20s linear infinite;
+            transform-origin: center;
+            transform-style: preserve-3d;
+        }
+
+        h1 {
+            color: #64c8ff;
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        p {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            max-width: 300px;
+            text-align: center;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg class="earth" viewBox="0 0 200 200" width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="earthGradient" cx="40%" cy="40%">
+                    <stop offset="0%" style="stop-color:#87ceeb;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#4a90e2;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+                </radialGradient>
+                <filter id="earthGlow">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+
+            <!-- Earth sphere -->
+            <circle cx="100" cy="100" r="95" fill="url(#earthGradient)" filter="url(#earthGlow)" />
+
+            <!-- Continents (simplified) -->
+            <!-- North America -->
+            <path d="M 70 60 L 80 50 L 90 55 L 85 70 L 75 75 Z" fill="#2d5016" opacity="0.9" />
+
+            <!-- South America -->
+            <path d="M 75 90 L 85 85 L 90 100 L 80 115 Z" fill="#2d5016" opacity="0.9" />
+
+            <!-- Africa -->
+            <path d="M 100 70 L 115 75 L 120 95 L 115 120 L 100 115 L 95 90 Z" fill="#2d5016" opacity="0.9" />
+
+            <!-- Europe -->
+            <path d="M 105 50 L 120 55 L 125 65 L 115 70 Z" fill="#2d5016" opacity="0.9" />
+
+            <!-- Asia -->
+            <path d="M 125 65 L 145 70 L 150 90 L 140 100 L 120 85 Z" fill="#2d5016" opacity="0.9" />
+
+            <!-- Australia -->
+            <path d="M 140 110 L 150 115 L 148 130 L 138 125 Z" fill="#2d5016" opacity="0.9" />
+
+            <!-- Atmospheric glow -->
+            <circle cx="100" cy="100" r="98" fill="none" stroke="#64c8ff" stroke-width="1" opacity="0.3" />
+        </svg>
+
+        <h1>MCM</h1>
+        <p>Memories of the Collapsed Machine</p>
+    </div>
+</body>
+</html>
