@@ -17,7 +17,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
@@ -29,21 +29,21 @@
         }
 
         svg {
-            filter: drop-shadow(0 0 20px rgba(100, 200, 255, 0.3));
+            filter: drop-shadow(0 8px 32px rgba(255, 102, 0, 0.15));
             user-select: none;
         }
 
         @keyframes spin {
             from {
-                transform: rotateZ(0deg) rotateX(20deg) rotateY(0deg);
+                transform: rotateZ(0deg) rotateX(25deg) rotateY(0deg);
             }
             to {
-                transform: rotateZ(360deg) rotateX(20deg) rotateY(360deg);
+                transform: rotateZ(360deg) rotateX(25deg) rotateY(360deg);
             }
         }
 
         .form {
-            animation: spin 20s linear infinite;
+            animation: spin 24s linear infinite;
             transform-origin: center;
             transform-style: preserve-3d;
         }
@@ -51,15 +51,23 @@
 </head>
 <body>
     <div class="container" id="container">
-        <svg id="form" class="form" viewBox="0 0 200 200" width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+        <svg id="form" class="form" viewBox="0 0 200 200" width="320" height="320" xmlns="http://www.w3.org/2000/svg">
             <!-- Sphere (initial) -->
             <defs>
-                <radialGradient id="gradient">
-                    <stop offset="0%" style="stop-color:#64c8ff;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+                <radialGradient id="gradient" cx="35%" cy="35%">
+                    <stop offset="0%" style="stop-color:#ff8c42;stop-opacity:1" />
+                    <stop offset="60%" style="stop-color:#e67e22;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#cc5500;stop-opacity:1" />
                 </radialGradient>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
             </defs>
-            <circle class="shape" cx="100" cy="100" r="95" fill="url(#gradient)" />
+            <circle class="shape" cx="100" cy="100" r="95" fill="url(#gradient)" filter="url(#glow)" />
         </svg>
     </div>
 
@@ -67,74 +75,74 @@
         const forms = [
             // Sphere
             {
-                svg: `<circle class="shape" cx="100" cy="100" r="95" fill="url(#gradient)" />`
+                svg: `<circle class="shape" cx="100" cy="100" r="95" fill="url(#gradient)" filter="url(#glow)" />`
             },
-            // Cube
+            // Cube - clean minimalist
             {
                 svg: `
                     <g class="shape">
-                        <!-- Front face -->
-                        <polygon points="50,50 150,50 150,150 50,150" fill="#4a90e2" stroke="#64c8ff" stroke-width="2"/>
-                        <!-- Top face -->
-                        <polygon points="50,50 80,25 180,25 150,50" fill="#64c8ff" stroke="#64c8ff" stroke-width="2"/>
-                        <!-- Right face -->
-                        <polygon points="150,50 180,25 180,125 150,150" fill="#2d5aa8" stroke="#64c8ff" stroke-width="2"/>
+                        <polygon points="45,50 155,50 155,160 45,160" fill="#e67e22" filter="url(#glow)"/>
+                        <polygon points="45,50 75,30 185,30 155,50" fill="#ff8c42" filter="url(#glow)"/>
+                        <polygon points="155,50 185,30 185,140 155,160" fill="#cc5500" filter="url(#glow)"/>
+                        <line x1="45" y1="50" x2="155" y2="50" stroke="#ffffff" stroke-width="0.5" opacity="0.3"/>
+                        <line x1="155" y1="50" x2="185" y2="30" stroke="#ffffff" stroke-width="0.5" opacity="0.3"/>
                     </g>
                 `
             },
-            // Tetrahedron (Pyramid)
+            // Tetrahedron - sharp geometric
             {
                 svg: `
                     <g class="shape">
-                        <!-- Base -->
-                        <polygon points="50,140 150,140 100,180" fill="#4a90e2" stroke="#64c8ff" stroke-width="2"/>
-                        <!-- Left face -->
-                        <polygon points="50,140 100,30 100,180" fill="#64c8ff" stroke="#64c8ff" stroke-width="2"/>
-                        <!-- Right face -->
-                        <polygon points="150,140 100,30 100,180" fill="#2d5aa8" stroke="#64c8ff" stroke-width="2"/>
-                        <!-- Back face (partial) -->
-                        <polygon points="50,140 150,140 100,30" fill="#1e3a8a" stroke="#64c8ff" stroke-width="2"/>
+                        <polygon points="100,35 50,155 150,155" fill="#e67e22" filter="url(#glow)"/>
+                        <polygon points="100,35 75,115 125,115" fill="#ff8c42" filter="url(#glow)"/>
+                        <polygon points="50,155 75,115 125,115" fill="#cc5500" filter="url(#glow)"/>
+                        <polygon points="150,155 75,115 125,115" fill="#994400" filter="url(#glow)"/>
                     </g>
                 `
             },
-            // Octahedron
+            // Octahedron - contemporary wireframe style
             {
                 svg: `
                     <g class="shape">
-                        <!-- Top pyramid -->
-                        <polygon points="100,30 50,80 100,70 150,80" fill="#64c8ff" stroke="#64c8ff" stroke-width="2"/>
-                        <!-- Middle square -->
-                        <polygon points="50,80 100,70 150,80 100,90" fill="#4a90e2" stroke="#64c8ff" stroke-width="2"/>
-                        <!-- Bottom pyramid -->
-                        <polygon points="100,130 50,80 100,90 150,80" fill="#2d5aa8" stroke="#64c8ff" stroke-width="2"/>
-                        <!-- Front faces -->
-                        <polygon points="50,80 100,70 100,130" fill="#1e3a8a" stroke="#64c8ff" stroke-width="2"/>
-                        <polygon points="150,80 100,70 100,130" fill="#0f1e4d" stroke="#64c8ff" stroke-width="2"/>
+                        <polygon points="100,30 65,70 100,85 135,70" fill="#ff8c42" filter="url(#glow)" opacity="0.9"/>
+                        <polygon points="100,30 65,70 60,130 100,145" fill="#e67e22" filter="url(#glow)" opacity="0.9"/>
+                        <polygon points="100,30 135,70 140,130 100,145" fill="#e67e22" filter="url(#glow)" opacity="0.9"/>
+                        <polygon points="65,70 100,85 60,130 100,145" fill="#cc5500" filter="url(#glow)" opacity="0.9"/>
+                        <polygon points="135,70 100,85 140,130 100,145" fill="#cc5500" filter="url(#glow)" opacity="0.9"/>
+                        <polygon points="65,70 135,70 140,130 60,130" fill="#994400" filter="url(#glow)" opacity="0.85"/>
+                        <line x1="100" y1="30" x2="100" y2="145" stroke="#ff8c42" stroke-width="0.5" opacity="0.4"/>
+                        <line x1="65" y1="70" x2="135" y2="70" stroke="#ff8c42" stroke-width="0.5" opacity="0.4"/>
                     </g>
                 `
             },
-            // Icosahedron (simplified)
+            // Icosahedron - complex contemporary
             {
                 svg: `
                     <g class="shape">
-                        <polygon points="100,30 60,60 70,110 130,110 140,60" fill="#64c8ff" stroke="#64c8ff" stroke-width="1.5"/>
-                        <polygon points="60,60 30,80 50,130 70,110" fill="#4a90e2" stroke="#64c8ff" stroke-width="1.5"/>
-                        <polygon points="140,60 170,80 150,130 130,110" fill="#2d5aa8" stroke="#64c8ff" stroke-width="1.5"/>
-                        <polygon points="70,110 50,130 100,160 130,110" fill="#1e3a8a" stroke="#64c8ff" stroke-width="1.5"/>
-                        <polygon points="30,80 50,130 70,110 60,60" fill="#0f1e4d" stroke="#64c8ff" stroke-width="1.5"/>
-                        <polygon points="170,80 150,130 130,110 140,60" fill="#0a0f2e" stroke="#64c8ff" stroke-width="1.5"/>
+                        <polygon points="100,25 70,50 75,90 125,90 130,50" fill="#ff8c42" filter="url(#glow)" opacity="0.85"/>
+                        <polygon points="70,50 45,75 65,120 90,100 75,90" fill="#e67e22" filter="url(#glow)" opacity="0.85"/>
+                        <polygon points="130,50 155,75 135,120 110,100 125,90" fill="#e67e22" filter="url(#glow)" opacity="0.85"/>
+                        <polygon points="75,90 90,100 65,120 55,110" fill="#cc5500" filter="url(#glow)" opacity="0.85"/>
+                        <polygon points="125,90 110,100 135,120 145,110" fill="#cc5500" filter="url(#glow)" opacity="0.85"/>
+                        <polygon points="65,120 90,100 110,100 135,120 100,150" fill="#994400" filter="url(#glow)" opacity="0.85"/>
+                        <line x1="70" y1="50" x2="130" y2="50" stroke="#ffffff" stroke-width="0.3" opacity="0.2"/>
+                        <line x1="100" y1="25" x2="100" y2="150" stroke="#ffffff" stroke-width="0.3" opacity="0.2"/>
                     </g>
                 `
             },
-            // Dodecahedron (simplified)
+            // Dodecahedron - organic contemporary
             {
                 svg: `
                     <g class="shape">
-                        <polygon points="100,40 60,60 55,100 85,120 130,115 145,80" fill="#64c8ff" stroke="#64c8ff" stroke-width="1.5"/>
-                        <polygon points="60,60 30,90 40,130 70,140 85,120" fill="#4a90e2" stroke="#64c8ff" stroke-width="1.5"/>
-                        <polygon points="145,80 170,90 160,130 130,140 130,115" fill="#2d5aa8" stroke="#64c8ff" stroke-width="1.5"/>
-                        <polygon points="55,100 40,130 70,140 85,120" fill="#1e3a8a" stroke="#64c8ff" stroke-width="1.5"/>
-                        <polygon points="130,115 130,140 100,160 85,145" fill="#0f1e4d" stroke="#64c8ff" stroke-width="1.5"/>
+                        <polygon points="100,35 75,55 65,85 85,100 120,95 135,70" fill="#ff8c42" filter="url(#glow)" opacity="0.87"/>
+                        <polygon points="75,55 50,70 50,110 65,85" fill="#e67e22" filter="url(#glow)" opacity="0.87"/>
+                        <polygon points="135,70 160,70 160,110 150,85" fill="#e67e22" filter="url(#glow)" opacity="0.87"/>
+                        <polygon points="65,85 50,110 80,135 100,130 95,105" fill="#cc5500" filter="url(#glow)" opacity="0.87"/>
+                        <polygon points="150,85 160,110 120,135 100,130 105,105" fill="#cc5500" filter="url(#glow)" opacity="0.87"/>
+                        <polygon points="85,100 95,105 100,130 80,145 70,135" fill="#994400" filter="url(#glow)" opacity="0.87"/>
+                        <polygon points="120,95 105,105 100,130 120,145 130,135" fill="#994400" filter="url(#glow)" opacity="0.87"/>
+                        <polygon points="70,135 80,145 100,155 120,145 130,135" fill="#773300" filter="url(#glow)" opacity="0.85"/>
+                        <line x1="100" y1="35" x2="100" y2="155" stroke="#ffffff" stroke-width="0.3" opacity="0.15"/>
                     </g>
                 `
             }
@@ -146,7 +154,20 @@
 
         container.addEventListener('click', () => {
             currentForm = (currentForm + 1) % forms.length;
-            const defs = '<defs><radialGradient id="gradient"><stop offset="0%" style="stop-color:#64c8ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" /></radialGradient></defs>';
+            const defs = `<defs>
+                <radialGradient id="gradient" cx="35%" cy="35%">
+                    <stop offset="0%" style="stop-color:#ff8c42;stop-opacity:1" />
+                    <stop offset="60%" style="stop-color:#e67e22;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#cc5500;stop-opacity:1" />
+                </radialGradient>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>`;
             formSvg.innerHTML = defs + forms[currentForm].svg;
         });
     </script>
