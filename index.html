@@ -125,16 +125,13 @@
         mesh = shapes[currentShape]();
         scene.add(mesh);
 
-        // Auto-spin
-        let autoRotate = true;
-
         // Mouse interaction
         let isDragging = false;
         let previousMousePosition = { x: 0, y: 0 };
+        let rotationVelocity = { x: 0, y: 0 };
 
         canvas.addEventListener('mousedown', (e) => {
             isDragging = true;
-            autoRotate = false;
             previousMousePosition = { x: e.clientX, y: e.clientY };
         });
 
@@ -143,8 +140,11 @@
                 const deltaX = e.clientX - previousMousePosition.x;
                 const deltaY = e.clientY - previousMousePosition.y;
 
-                mesh.rotation.y += deltaX * 0.01;
-                mesh.rotation.x += deltaY * 0.01;
+                rotationVelocity.x = deltaY * 0.01;
+                rotationVelocity.y = deltaX * 0.01;
+
+                mesh.rotation.y += rotationVelocity.y;
+                mesh.rotation.x += rotationVelocity.x;
 
                 previousMousePosition = { x: e.clientX, y: e.clientY };
             }
@@ -164,7 +164,6 @@
             currentShape = (currentShape + 1) % shapes.length;
             mesh = shapes[currentShape]();
             scene.add(mesh);
-            autoRotate = true;
         });
 
         // Handle window resize
@@ -178,10 +177,19 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            if (mesh && autoRotate) {
-                mesh.rotation.x += 0.002;
-                mesh.rotation.y += 0.005;
-                mesh.rotation.z += 0.001;
+            if (mesh) {
+                // Always auto-rotate
+                mesh.rotation.x += 0.005;
+                mesh.rotation.y += 0.008;
+                mesh.rotation.z += 0.002;
+
+                // Apply inertia from mouse drag
+                if (!isDragging) {
+                    rotationVelocity.x *= 0.95;
+                    rotationVelocity.y *= 0.95;
+                    mesh.rotation.x += rotationVelocity.x;
+                    mesh.rotation.y += rotationVelocity.y;
+                }
             }
 
             renderer.render(scene, camera);
