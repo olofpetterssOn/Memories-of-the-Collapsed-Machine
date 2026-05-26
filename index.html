@@ -24,7 +24,11 @@
 
         canvas {
             display: block;
-            cursor: pointer;
+            cursor: grab;
+        }
+
+        canvas:active {
+            cursor: grabbing;
         }
     </style>
 </head>
@@ -53,41 +57,114 @@
         directionalLight.position.set(5, 5, 5);
         scene.add(directionalLight);
 
-        // Material
-        const material = new THREE.MeshPhongMaterial({
+        // Create Earth texture
+        function createEarthTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 2048;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+
+            // Ocean blue
+            ctx.fillStyle = '#1e90ff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Land masses (simplified)
+            ctx.fillStyle = '#228b22';
+            
+            // North America
+            ctx.fillRect(100, 200, 150, 120);
+            // South America
+            ctx.fillRect(150, 350, 100, 150);
+            // Europe
+            ctx.fillRect(600, 150, 120, 100);
+            // Africa
+            ctx.fillRect(700, 250, 150, 200);
+            // Asia
+            ctx.fillRect(1000, 150, 400, 300);
+            // Australia
+            ctx.fillRect(1300, 450, 100, 100);
+            // Greenland
+            ctx.fillRect(400, 50, 80, 100);
+            // Antarctica
+            ctx.fillRect(0, 900, canvas.width, 124);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            return texture;
+        }
+
+        // Materials
+        const earthMaterial = new THREE.MeshPhongMaterial({
+            map: createEarthTexture(),
+            shininess: 5
+        });
+
+        const orangeMaterial = new THREE.MeshPhongMaterial({
             color: 0xff6600,
-            shininess: 100,
-            wireframe: false
+            shininess: 100
         });
 
         let currentShape = 0;
         let mesh = null;
 
         const shapes = [
-            // Sphere
-            () => new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), material),
+            // Sphere (Earth)
+            () => new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), earthMaterial),
             // Cube
-            () => new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), material),
+            () => new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), orangeMaterial),
             // Tetrahedron
-            () => new THREE.Mesh(new THREE.TetrahedronGeometry(1, 0), material),
+            () => new THREE.Mesh(new THREE.TetrahedronGeometry(1, 0), orangeMaterial),
             // Octahedron
-            () => new THREE.Mesh(new THREE.OctahedronGeometry(1, 0), material),
+            () => new THREE.Mesh(new THREE.OctahedronGeometry(1, 0), orangeMaterial),
             // Icosahedron
-            () => new THREE.Mesh(new THREE.IcosahedronGeometry(1, 0), material),
+            () => new THREE.Mesh(new THREE.IcosahedronGeometry(1, 0), orangeMaterial),
             // Dodecahedron
-            () => new THREE.Mesh(new THREE.DodecahedronGeometry(1, 0), material)
+            () => new THREE.Mesh(new THREE.DodecahedronGeometry(1, 0), orangeMaterial)
         ];
 
         // Create initial mesh
         mesh = shapes[currentShape]();
         scene.add(mesh);
 
+        // Auto-spin
+        let autoRotate = true;
+
         // Mouse interaction
-        canvas.addEventListener('click', () => {
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            autoRotate = false;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDragging && mesh) {
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                mesh.rotation.y += deltaX * 0.01;
+                mesh.rotation.x += deltaY * 0.01;
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+        });
+
+        // Double-click to change shape
+        canvas.addEventListener('dblclick', () => {
             scene.remove(mesh);
             currentShape = (currentShape + 1) % shapes.length;
             mesh = shapes[currentShape]();
             scene.add(mesh);
+            autoRotate = true;
         });
 
         // Handle window resize
@@ -101,10 +178,10 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            if (mesh) {
-                mesh.rotation.x += 0.005;
-                mesh.rotation.y += 0.008;
-                mesh.rotation.z += 0.003;
+            if (mesh && autoRotate) {
+                mesh.rotation.x += 0.002;
+                mesh.rotation.y += 0.005;
+                mesh.rotation.z += 0.001;
             }
 
             renderer.render(scene, camera);
