@@ -26,10 +26,11 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            perspective: 1000px;
         }
 
         svg {
-            filter: drop-shadow(0 8px 32px rgba(255, 102, 0, 0.15));
+            filter: drop-shadow(0 20px 50px rgba(255, 102, 0, 0.2)) drop-shadow(0 10px 25px rgba(0, 0, 0, 0.1));
             user-select: none;
         }
 
@@ -60,7 +61,7 @@
                     <stop offset="100%" style="stop-color:#cc5500;stop-opacity:1" />
                 </radialGradient>
                 <filter id="glow">
-                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
                     <feMerge>
                         <feMergeNode in="coloredBlur"/>
                         <feMergeNode in="SourceGraphic"/>
@@ -68,6 +69,7 @@
                 </filter>
             </defs>
             <circle class="shape" cx="100" cy="100" r="95" fill="url(#gradient)" filter="url(#glow)" />
+            <ellipse cx="100" cy="105" rx="90" ry="15" fill="#000000" opacity="0.08"/>
         </svg>
     </div>
 
@@ -75,74 +77,135 @@
         const forms = [
             // Sphere
             {
-                svg: `<circle class="shape" cx="100" cy="100" r="95" fill="url(#gradient)" filter="url(#glow)" />`
+                svg: `
+                    <circle class="shape" cx="100" cy="100" r="95" fill="url(#gradient)" filter="url(#glow)" />
+                    <ellipse cx="100" cy="105" rx="90" ry="15" fill="#000000" opacity="0.08"/>
+                `
             },
-            // Cube - clean minimalist
+            // Cube - strong 3D with proper faces
             {
                 svg: `
                     <g class="shape">
-                        <polygon points="45,50 155,50 155,160 45,160" fill="#e67e22" filter="url(#glow)"/>
-                        <polygon points="45,50 75,30 185,30 155,50" fill="#ff8c42" filter="url(#glow)"/>
-                        <polygon points="155,50 185,30 185,140 155,160" fill="#cc5500" filter="url(#glow)"/>
-                        <line x1="45" y1="50" x2="155" y2="50" stroke="#ffffff" stroke-width="0.5" opacity="0.3"/>
-                        <line x1="155" y1="50" x2="185" y2="30" stroke="#ffffff" stroke-width="0.5" opacity="0.3"/>
+                        <!-- Back face (darkest) -->
+                        <polygon points="45,70 145,70 145,150 45,150" fill="#663300" opacity="0.6"/>
+                        <!-- Front face (brightest) -->
+                        <polygon points="45,50 145,50 145,130 45,130" fill="#ff9955" filter="url(#glow)"/>
+                        <!-- Top face -->
+                        <polygon points="45,50 85,20 185,20 145,50" fill="#ffb380"/>
+                        <!-- Right face (medium) -->
+                        <polygon points="145,50 185,20 185,100 145,130" fill="#cc7722"/>
+                        <!-- Left face (dark) -->
+                        <polygon points="45,50 45,130 5,100 5,20 85,20" fill="#994411" opacity="0.8"/>
+                        <!-- Subtle edge highlights -->
+                        <line x1="45" y1="50" x2="145" y2="50" stroke="#ffcc99" stroke-width="1" opacity="0.4"/>
+                        <line x1="145" y1="50" x2="185" y2="20" stroke="#ffcc99" stroke-width="1" opacity="0.3"/>
                     </g>
                 `
             },
-            // Tetrahedron - sharp geometric
+            // Tetrahedron - 3D pyramid
             {
                 svg: `
                     <g class="shape">
-                        <polygon points="100,35 50,155 150,155" fill="#e67e22" filter="url(#glow)"/>
-                        <polygon points="100,35 75,115 125,115" fill="#ff8c42" filter="url(#glow)"/>
-                        <polygon points="50,155 75,115 125,115" fill="#cc5500" filter="url(#glow)"/>
-                        <polygon points="150,155 75,115 125,115" fill="#994400" filter="url(#glow)"/>
+                        <!-- Back bottom edge (darkest) -->
+                        <polygon points="50,150 150,150 100,140" fill="#553300" opacity="0.7"/>
+                        <!-- Back left face (dark) -->
+                        <polygon points="100,35 50,150 85,120" fill="#884411"/>
+                        <!-- Back right face (dark) -->
+                        <polygon points="100,35 150,150 115,120" fill="#772200"/>
+                        <!-- Front left face (bright) -->
+                        <polygon points="100,35 50,150 100,100" fill="#ffb380" filter="url(#glow)"/>
+                        <!-- Front right face (medium-bright) -->
+                        <polygon points="100,35 150,150 100,100" fill="#ff9955" filter="url(#glow)"/>
+                        <!-- Bottom face (medium) -->
+                        <polygon points="50,150 150,150 100,100" fill="#e67e22"/>
+                        <!-- Highlight edge -->
+                        <line x1="100" y1="35" x2="100" y2="100" stroke="#ffcc99" stroke-width="0.5" opacity="0.5"/>
                     </g>
                 `
             },
-            // Octahedron - contemporary wireframe style
+            // Octahedron - strong 3D with depth
             {
                 svg: `
                     <g class="shape">
-                        <polygon points="100,30 65,70 100,85 135,70" fill="#ff8c42" filter="url(#glow)" opacity="0.9"/>
-                        <polygon points="100,30 65,70 60,130 100,145" fill="#e67e22" filter="url(#glow)" opacity="0.9"/>
-                        <polygon points="100,30 135,70 140,130 100,145" fill="#e67e22" filter="url(#glow)" opacity="0.9"/>
-                        <polygon points="65,70 100,85 60,130 100,145" fill="#cc5500" filter="url(#glow)" opacity="0.9"/>
-                        <polygon points="135,70 100,85 140,130 100,145" fill="#cc5500" filter="url(#glow)" opacity="0.9"/>
-                        <polygon points="65,70 135,70 140,130 60,130" fill="#994400" filter="url(#glow)" opacity="0.85"/>
-                        <line x1="100" y1="30" x2="100" y2="145" stroke="#ff8c42" stroke-width="0.5" opacity="0.4"/>
-                        <line x1="65" y1="70" x2="135" y2="70" stroke="#ff8c42" stroke-width="0.5" opacity="0.4"/>
+                        <!-- Bottom back pyramid (darker) -->
+                        <polygon points="65,90 135,90 100,150" fill="#663300" opacity="0.65"/>
+                        <!-- Top front triangle (brightest) -->
+                        <polygon points="100,30 65,70 135,70" fill="#ffb380" filter="url(#glow)"/>
+                        <!-- Left face (medium) -->
+                        <polygon points="65,70 65,90 100,150 100,110" fill="#ff9955"/>
+                        <!-- Right face (medium) -->
+                        <polygon points="135,70 135,90 100,150 100,110" fill="#e67e22"/>
+                        <!-- Front left (bright) -->
+                        <polygon points="100,30 65,70 100,110" fill="#ffcc99" filter="url(#glow)"/>
+                        <!-- Front right (bright) -->
+                        <polygon points="100,30 135,70 100,110" fill="#ffb380" filter="url(#glow)"/>
+                        <!-- Back left (dark) -->
+                        <polygon points="65,70 65,90 100,110" fill="#773300"/>
+                        <!-- Back right (dark) -->
+                        <polygon points="135,70 135,90 100,110" fill="#553300"/>
+                        <!-- Vertical highlight -->
+                        <line x1="100" y1="30" x2="100" y2="110" stroke="#ffdd99" stroke-width="0.7" opacity="0.6"/>
                     </g>
                 `
             },
-            // Icosahedron - complex contemporary
+            // Icosahedron - complex 3D
             {
                 svg: `
                     <g class="shape">
-                        <polygon points="100,25 70,50 75,90 125,90 130,50" fill="#ff8c42" filter="url(#glow)" opacity="0.85"/>
-                        <polygon points="70,50 45,75 65,120 90,100 75,90" fill="#e67e22" filter="url(#glow)" opacity="0.85"/>
-                        <polygon points="130,50 155,75 135,120 110,100 125,90" fill="#e67e22" filter="url(#glow)" opacity="0.85"/>
-                        <polygon points="75,90 90,100 65,120 55,110" fill="#cc5500" filter="url(#glow)" opacity="0.85"/>
-                        <polygon points="125,90 110,100 135,120 145,110" fill="#cc5500" filter="url(#glow)" opacity="0.85"/>
-                        <polygon points="65,120 90,100 110,100 135,120 100,150" fill="#994400" filter="url(#glow)" opacity="0.85"/>
-                        <line x1="70" y1="50" x2="130" y2="50" stroke="#ffffff" stroke-width="0.3" opacity="0.2"/>
-                        <line x1="100" y1="25" x2="100" y2="150" stroke="#ffffff" stroke-width="0.3" opacity="0.2"/>
+                        <!-- Top cap -->
+                        <polygon points="100,25 70,50 130,50" fill="#ffcc99" filter="url(#glow)"/>
+                        <!-- Upper left front -->
+                        <polygon points="70,50 45,75 70,100 100,85" fill="#ffb380" filter="url(#glow)"/>
+                        <!-- Upper right front -->
+                        <polygon points="130,50 155,75 130,100 100,85" fill="#ffb380" filter="url(#glow)"/>
+                        <!-- Middle left -->
+                        <polygon points="70,100 45,75 60,120 80,110" fill="#ff9955"/>
+                        <!-- Middle right -->
+                        <polygon points="130,100 155,75 140,120 120,110" fill="#ff9955"/>
+                        <!-- Lower left back -->
+                        <polygon points="45,75 45,120 70,100" fill="#cc7722"/>
+                        <!-- Lower right back -->
+                        <polygon points="155,75 155,120 130,100" fill="#cc7722"/>
+                        <!-- Bottom left front -->
+                        <polygon points="60,120 80,110 75,145" fill="#e67e22"/>
+                        <!-- Bottom right front -->
+                        <polygon points="140,120 120,110 125,145" fill="#e67e22"/>
+                        <!-- Bottom back -->
+                        <polygon points="60,120 140,120 100,155" fill="#cc5500"/>
+                        <!-- Dark bottom corners -->
+                        <polygon points="45,120 60,120 75,145" fill="#773300" opacity="0.75"/>
+                        <polygon points="155,120 140,120 125,145" fill="#553300" opacity="0.75"/>
                     </g>
                 `
             },
-            // Dodecahedron - organic contemporary
+            // Dodecahedron - 3D faceted
             {
                 svg: `
                     <g class="shape">
-                        <polygon points="100,35 75,55 65,85 85,100 120,95 135,70" fill="#ff8c42" filter="url(#glow)" opacity="0.87"/>
-                        <polygon points="75,55 50,70 50,110 65,85" fill="#e67e22" filter="url(#glow)" opacity="0.87"/>
-                        <polygon points="135,70 160,70 160,110 150,85" fill="#e67e22" filter="url(#glow)" opacity="0.87"/>
-                        <polygon points="65,85 50,110 80,135 100,130 95,105" fill="#cc5500" filter="url(#glow)" opacity="0.87"/>
-                        <polygon points="150,85 160,110 120,135 100,130 105,105" fill="#cc5500" filter="url(#glow)" opacity="0.87"/>
-                        <polygon points="85,100 95,105 100,130 80,145 70,135" fill="#994400" filter="url(#glow)" opacity="0.87"/>
-                        <polygon points="120,95 105,105 100,130 120,145 130,135" fill="#994400" filter="url(#glow)" opacity="0.87"/>
-                        <polygon points="70,135 80,145 100,155 120,145 130,135" fill="#773300" filter="url(#glow)" opacity="0.85"/>
-                        <line x1="100" y1="35" x2="100" y2="155" stroke="#ffffff" stroke-width="0.3" opacity="0.15"/>
+                        <!-- Top front pentagon -->
+                        <polygon points="100,35 75,55 80,85 120,85 125,55" fill="#ffb380" filter="url(#glow)"/>
+                        <!-- Upper left -->
+                        <polygon points="75,55 50,70 55,105 80,85" fill="#ffcc99"/>
+                        <!-- Upper right -->
+                        <polygon points="125,55 150,70 145,105 120,85" fill="#ff9955"/>
+                        <!-- Left side -->
+                        <polygon points="50,70 40,105 65,125 55,105" fill="#cc7722"/>
+                        <!-- Right side -->
+                        <polygon points="150,70 160,105 135,125 145,105" fill="#e67e22"/>
+                        <!-- Middle front left -->
+                        <polygon points="55,105 65,125 85,120 80,85" fill="#ff9955"/>
+                        <!-- Middle front right -->
+                        <polygon points="145,105 135,125 115,120 120,85" fill="#e67e22"/>
+                        <!-- Bottom left front -->
+                        <polygon points="65,125 80,145 85,120" fill="#e67e22"/>
+                        <!-- Bottom right front -->
+                        <polygon points="135,125 120,145 115,120" fill="#cc5500"/>
+                        <!-- Bottom back left -->
+                        <polygon points="40,105 55,125 65,125" fill="#773300" opacity="0.7"/>
+                        <!-- Bottom back right -->
+                        <polygon points="160,105 145,125 135,125" fill="#553300" opacity="0.7"/>
+                        <!-- Bottom center -->
+                        <polygon points="80,145 120,145 100,160" fill="#994411"/>
                     </g>
                 `
             }
@@ -161,7 +224,7 @@
                     <stop offset="100%" style="stop-color:#cc5500;stop-opacity:1" />
                 </radialGradient>
                 <filter id="glow">
-                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
                     <feMerge>
                         <feMergeNode in="coloredBlur"/>
                         <feMergeNode in="SourceGraphic"/>
